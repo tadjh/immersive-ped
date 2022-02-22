@@ -6,7 +6,7 @@ import { models as M } from "../../constants";
  */
 const spawn = (model: number) => {
   SetPlayerModel(PlayerId(), model);
-  SetPedDefaultComponentVariation(PlayerPedId());
+  SetPedDefaultComponentVariation(PlayerPedId()); // TODO Is this needed?
   SetModelAsNoLongerNeeded(model);
 };
 
