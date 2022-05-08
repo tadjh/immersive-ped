@@ -1,6 +1,6 @@
 import { models } from "../../constants";
 import { Args } from "../../types";
-import { getArg, shouldRequestModel } from "./utils";
+import { getArg, isEmpty, shouldRequestModel } from "./utils";
 
 /**
  * Spawns the new ped model and releases it from memory
@@ -57,8 +57,8 @@ function handleRequest(arg: string) {
  * @param args The args
  * @returns void
  */
-export function ped(_source: number, args?: Args) {
-  if (!args) return setDefault();
+export function ped(_source: number, args: Args) {
+  if (isEmpty(args)) return setDefault();
   const arg = getArg(args);
   handleRequest(arg);
 }

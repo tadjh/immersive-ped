@@ -1,1 +1,1 @@
-export type Args = [string];
+export type Args = string[];
