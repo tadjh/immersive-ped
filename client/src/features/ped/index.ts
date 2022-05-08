@@ -1,6 +1,6 @@
-import { models } from "../../config";
+import { DEFAULT_PED_MODEL, models } from "../../config";
 import { Args, Model } from "../../types";
-import { getArg, isEmpty, shouldRequestPedModel, debugDATA } from "./utils";
+import { getArg, isEmpty, shouldRequestModel, debugDATA } from "./utils";
 
 /**
  * Spawns the new ped model and releases it from memory
@@ -29,14 +29,14 @@ function handleSpawn(model: Model) {
  * @returns void
  */
 function request(model: Model) {
-  if (!shouldRequestPedModel(model))
+  if (!shouldRequestModel(model))
     return debugDATA(`ped model "${model}" not found`);
   RequestModel(model);
   handleSpawn(model);
 }
 
 function setDefault() {
-  request(models.MP_M_Freemode_01);
+  request(DEFAULT_PED_MODEL);
 }
 
 function handleRequest(arg: string) {
@@ -46,7 +46,7 @@ function handleRequest(arg: string) {
       return request(models.MP_F_Freemode_01);
     case "m":
     case "male":
-      return setDefault();
+      return request(models.MP_M_Freemode_01);
     default:
       return request(arg);
   }
