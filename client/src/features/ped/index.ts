@@ -35,7 +35,7 @@ function request(model: Model) {
   handleSpawn(model);
 }
 
-function setDefault() {
+function requestDefault() {
   request(DEFAULT_PED_MODEL);
 }
 
@@ -59,7 +59,7 @@ function handleRequest(arg: string) {
  * @returns void
  */
 export function ped(_source: number, args: Args) {
-  if (isEmpty(args)) return setDefault();
+  if (isEmpty(args)) return requestDefault();
   const arg = getArg(args);
   handleRequest(arg);
 }
