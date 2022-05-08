@@ -1,5 +1,5 @@
-import { CURRENT_RESOURCE_NAME } from "../constants";
-import { getArg, isEmpty } from "../features/ped/utils";
+import { CURRENT_RESOURCE_NAME } from "../config";
+import { getArg, isEmpty } from "../utils";
 import { Args } from "../types";
 
 const COMMAND_DEBUG = `${CURRENT_RESOURCE_NAME}:debug`;

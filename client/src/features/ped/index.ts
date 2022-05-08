@@ -1,7 +1,6 @@
-import { models } from "../../constants";
+import { models } from "../../config";
 import { Args, Model } from "../../types";
-import { debugDATA } from "../../utils/debug";
-import { getArg, isEmpty, shouldRequestPedModel } from "./utils";
+import { getArg, isEmpty, shouldRequestPedModel, debugDATA } from "./utils";
 
 /**
  * Spawns the new ped model and releases it from memory
