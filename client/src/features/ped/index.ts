@@ -1,57 +1,64 @@
-import { models as M } from "../../constants";
+import { models } from "../../constants";
+import { Args } from "../../types";
+import { getArg, shouldRequestModel } from "./utils";
 
 /**
  * Spawns the new ped model and releases it from memory
  * @param model The ped model hash
  */
-const spawn = (model: number) => {
+function spawn(model: number) {
   SetPlayerModel(PlayerId(), model);
   SetPedDefaultComponentVariation(PlayerPedId()); // TODO Is this needed?
   SetModelAsNoLongerNeeded(model);
-};
+}
+
+function handleSpawn(model: number) {
+  const tick = setTick(() => {
+    if (HasModelLoaded(model)) {
+      spawn(model);
+      return clearTick(tick);
+    }
+    Wait(0);
+  });
+}
 
 /**
  * Loads the ped into memory
  * @param name The ped name
  * @returns void
  */
-const request = (name: string) => {
+function request(name: string) {
   const model = GetHashKey(name);
-  if (!IsModelInCdimage(model) || !IsModelAPed(model)) return;
+  if (!shouldRequestModel(model)) return;
   RequestModel(model);
-  // const startTime = Date.now();
-  const tick = setTick(() => {
-    if (HasModelLoaded(model)) {
-      spawn(model);
-      return clearTick(tick);
-    }
-    // if (Date.now() - startTime > MAX_EXECUTION) clearTick(tick);
-    Wait(0);
-  });
-};
+  handleSpawn(model);
+}
+
+function setDefault() {
+  request(models.MP_M_Freemode_01);
+}
+
+function handleRequest(arg: string) {
+  switch (arg) {
+    case "f":
+    case "female":
+      return request(models.MP_F_Freemode_01);
+    case "m":
+    case "male":
+      return setDefault();
+    default:
+      return request(arg);
+  }
+}
 
 /**
  * Sets ped model based on args
- * @param source The source
+ * @param _source The source (unused)
  * @param args The args
  * @returns void
  */
-export const ped = (source: number, args?: [string]) => {
-  if (!args) return request(M.MP_M_Freemode_01);
-  const [name] = args;
-  let pedName = "";
-  switch (name) {
-    case "f":
-    case "female":
-      pedName = M.MP_F_Freemode_01;
-      break;
-    case "m":
-    case "male":
-      pedName = M.MP_M_Freemode_01;
-      break;
-    default:
-      pedName = name;
-      break;
-  }
-  request(pedName);
-};
+export function ped(_source: number, args?: Args) {
+  if (!args) return setDefault();
+  const arg = getArg(args);
+  handleRequest(arg);
+}
