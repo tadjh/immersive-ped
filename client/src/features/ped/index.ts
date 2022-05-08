@@ -1,18 +1,20 @@
 import { models } from "../../constants";
-import { Args } from "../../types";
-import { getArg, isEmpty, shouldRequestModel } from "./utils";
+import { Args, Model } from "../../types";
+import { debugDATA } from "../../utils/debug";
+import { getArg, isEmpty, shouldRequestPedModel } from "./utils";
 
 /**
  * Spawns the new ped model and releases it from memory
  * @param model The ped model hash
  */
-function spawn(model: number) {
+function spawn(model: Model) {
   SetPlayerModel(PlayerId(), model);
-  SetPedDefaultComponentVariation(PlayerPedId()); // TODO Is this needed?
+  SetPedDefaultComponentVariation(PlayerPedId());
   SetModelAsNoLongerNeeded(model);
+  debugDATA(`set ped model to "${model}"`);
 }
 
-function handleSpawn(model: number) {
+function handleSpawn(model: Model) {
   const tick = setTick(() => {
     if (HasModelLoaded(model)) {
       spawn(model);
@@ -27,9 +29,9 @@ function handleSpawn(model: number) {
  * @param name The ped name
  * @returns void
  */
-function request(name: string) {
-  const model = GetHashKey(name);
-  if (!shouldRequestModel(model)) return;
+function request(model: Model) {
+  if (!shouldRequestPedModel(model))
+    return debugDATA(`ped model "${model}" not found`);
   RequestModel(model);
   handleSpawn(model);
 }

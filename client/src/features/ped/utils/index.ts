@@ -1,4 +1,4 @@
-import { Args } from "../../../types";
+import { Args, Model } from "../../../types";
 
 export function isEmpty<T extends unknown>(arr: T[]) {
   return Array.isArray(arr) && !arr.length;
@@ -9,6 +9,6 @@ export function getArg(args: Args) {
   return arg1;
 }
 
-export function shouldRequestModel(model: number) {
+export function shouldRequestPedModel(model: Model) {
   return IsModelInCdimage(model) && IsModelAPed(model);
 }
