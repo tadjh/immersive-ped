@@ -43,9 +43,13 @@ function handleRequest(arg: string) {
   switch (arg) {
     case "f":
     case "female":
+    case "-1667301416":
+    case models.MP_F_Freemode_01:
       return request(models.MP_F_Freemode_01);
     case "m":
     case "male":
+    case "1885233650":
+    case models.MP_M_Freemode_01:
       return request(models.MP_M_Freemode_01);
     default:
       return request(arg);
