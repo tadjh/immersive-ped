@@ -64,7 +64,7 @@ export function callback(ped: number) {
  * @param args The args
  * @returns void
  */
-export function ped(_source: number, args: Args) {
+export function ped(_source: number, args: Args | []) {
   if (isEmpty(args)) return requestDefault();
   const arg = getArg(args);
   SetPedModel(arg);
