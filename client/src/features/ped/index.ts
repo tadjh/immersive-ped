@@ -1,22 +1,27 @@
 import { DEFAULT_PED_MODEL, models } from "../../config";
 import { Args, Model, PedCallback } from "../../types";
-import { getArg, isEmpty, shouldRequestModel, debugDATA } from "./utils";
-import { SetPedModel } from "./utils/natives";
+import { getArg, isEmpty, shouldRequestModel, debugDATA } from "../../utils";
+import { SetPedModel } from "../../utils/natives";
+
+export function setPedModelCallback(ped: number): void {
+  emit("SetPedModel", ped);
+  debugDATA(`emitting event "SetPedModel"`);
+}
 
 function cleanUp(model: Model) {
   SetModelAsNoLongerNeeded(model);
 }
 
-function spawn(model: Model, callback?: PedCallback) {
+function spawn(model: Model, callback: PedCallback) {
   SetPlayerModel(PlayerId(), model);
-  const ped = PlayerPedId();
-  SetPedDefaultComponentVariation(ped);
   cleanUp(model);
   debugDATA(`set ped model to "${model}"`);
-  return callback && callback(ped);
+  const ped = PlayerPedId();
+  SetPedDefaultComponentVariation(ped);
+  return callback(ped);
 }
 
-function handleSpawn(model: Model, callback?: PedCallback) {
+function handleSpawn(model: Model, callback: PedCallback) {
   const tick = setTick(() => {
     if (HasModelLoaded(model)) {
       clearTick(tick);
@@ -26,18 +31,18 @@ function handleSpawn(model: Model, callback?: PedCallback) {
   });
 }
 
-function request(model: Model, callback?: PedCallback) {
+function request(model: Model, callback: PedCallback) {
   if (!shouldRequestModel(model))
     return debugDATA(`ped model "${model}" not found`);
   RequestModel(model);
   handleSpawn(model, callback);
 }
 
-export function requestDefault(callback?: PedCallback) {
-  request(DEFAULT_PED_MODEL, callback);
+export function requestDefault() {
+  request(DEFAULT_PED_MODEL, setPedModelCallback);
 }
 
-export function handleRequest(arg: string, callback?: PedCallback) {
+export function handleRequest(arg: string, callback: PedCallback) {
   switch (arg) {
     case "f":
     case "female":
@@ -54,10 +59,6 @@ export function handleRequest(arg: string, callback?: PedCallback) {
   }
 }
 
-export function callback(ped: number) {
-  return ped;
-}
-
 /**
  * Sets ped model based on args
  * @param _source The source (unused)
@@ -69,5 +70,3 @@ export function ped(_source: number, args: Args | []) {
   const arg = getArg(args);
   SetPedModel(arg);
 }
-
-export { SetPedModel };

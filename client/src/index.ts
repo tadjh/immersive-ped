@@ -1,5 +1,6 @@
 import { COMMAND_PED } from "./config";
-import { ped, SetPedModel } from "./features/ped";
+import { ped } from "./features/ped";
+import { SetPedModel } from "./utils/natives";
 
 RegisterCommand(COMMAND_PED, ped, false);
 
