@@ -1,14 +1,7 @@
-import {
-  handleRequest,
-  requestDefault,
-  setPedModelCallback,
-} from "../features/ped";
-import { Model, PedCallback } from "../types";
+import { handleRequest, requestDefault } from "../features/ped";
+import { Model } from "../types";
 
-export function SetPedModel(
-  model?: Model,
-  callback: PedCallback = (ped: number) => setPedModelCallback(ped)
-) {
+export function SetPedModel(model?: Model, shouldEmit = true) {
   if (model === undefined || model === "undefined") return requestDefault();
-  return handleRequest(model, callback);
+  return handleRequest(model, shouldEmit);
 }
