@@ -1,8 +1,8 @@
-import { COMMAND_PED } from "./constants";
-import { ped } from "./features";
+import { COMMAND_PED } from "./config";
+import { ped } from "./features/ped";
+import { SetPedModel } from "./utils/natives";
 
-// Commands
 RegisterCommand(COMMAND_PED, ped, false);
 
-// Exports
 globalThis.exports("ped", ped);
+globalThis.exports("SetPedModel", SetPedModel);

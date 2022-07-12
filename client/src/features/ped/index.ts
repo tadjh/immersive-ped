@@ -1,57 +1,80 @@
-import { models as M } from "../../constants";
+import { DEFAULT_PED_MODEL, models } from "../../config";
+import { Args, Model } from "../../types";
+import { getArg, isEmpty, shouldRequestModel, debugDATA } from "../../utils";
+import { SetPedModel } from "../../utils/natives";
 
-/**
- * Spawns the new ped model and releases it from memory
- * @param model The ped model hash
- */
-const spawn = (model: number) => {
+function handleEmit(ped: number) {
+  emit("SetPedModel", ped);
+  debugDATA(`emitting event "SetPedModel"`);
+}
+
+function spawn(model: Model, shouldEmit?: boolean) {
   SetPlayerModel(PlayerId(), model);
-  SetPedDefaultComponentVariation(PlayerPedId());
   SetModelAsNoLongerNeeded(model);
-};
+  const ped = PlayerPedId();
+  SetPedDefaultComponentVariation(ped);
+  debugDATA(`set ped model to "${model}"`);
+  if (shouldEmit) handleEmit(ped);
+  return ped;
+}
 
-/**
- * Loads the ped into memory
- * @param name The ped name
- * @returns void
- */
-const request = (name: string) => {
-  const model = GetHashKey(name);
-  if (!IsModelInCdimage(model) || !IsModelAPed(model)) return;
-  RequestModel(model);
-  // const startTime = Date.now();
-  const tick = setTick(() => {
-    if (HasModelLoaded(model)) {
-      spawn(model);
-      return clearTick(tick);
-    }
-    // if (Date.now() - startTime > MAX_EXECUTION) clearTick(tick);
-    Wait(0);
+function shouldThreadExpire(elapsedTime: number) {
+  const MAX_EXECUTION_TIME = 5000;
+  return elapsedTime > MAX_EXECUTION_TIME;
+}
+
+function handleSpawn(model: Model, shouldEmit?: boolean) {
+  return new Promise<number>(function (resolve, reject) {
+    const startTime = Date.now();
+    const tick = setTick(() => {
+      if (HasModelLoaded(model)) {
+        resolve(spawn(model, shouldEmit));
+        return clearTick(tick);
+      }
+      const elapsedTime = Date.now() - startTime;
+      if (shouldThreadExpire(elapsedTime)) {
+        reject(`Max execution time elapsed in handleSpawn`);
+        return clearTick(tick);
+      }
+    });
   });
-};
+}
+
+function request(model: Model, shouldEmit?: boolean) {
+  if (!shouldRequestModel(model))
+    throw new Error(`ped model "${model}" not found`);
+  RequestModel(model);
+  return handleSpawn(model, shouldEmit);
+}
+
+export function requestDefault(shouldEmit = true) {
+  return request(DEFAULT_PED_MODEL, shouldEmit);
+}
+
+export function handleRequest(arg: Model, shouldEmit?: boolean) {
+  switch (arg) {
+    case "f":
+    case "female":
+      return request(models.MP_F_Freemode_01, shouldEmit);
+    case "m":
+    case "male":
+      return request(models.MP_M_Freemode_01, shouldEmit);
+    default:
+      return request(arg, shouldEmit);
+  }
+}
 
 /**
  * Sets ped model based on args
- * @param source The source
+ * @param _source The source (unused)
  * @param args The args
  * @returns void
  */
-export const ped = (source: number, args?: [string]) => {
-  if (!args) return request(M.MP_M_Freemode_01);
-  const [name] = args;
-  let pedName = "";
-  switch (name) {
-    case "f":
-    case "female":
-      pedName = M.MP_F_Freemode_01;
-      break;
-    case "m":
-    case "male":
-      pedName = M.MP_M_Freemode_01;
-      break;
-    default:
-      pedName = name;
-      break;
+export async function ped(_source: number, args: Args | []) {
+  const arg = isEmpty(args) ? undefined : getArg(args);
+  try {
+    await SetPedModel(arg);
+  } catch (error) {
+    debugDATA(error);
   }
-  request(pedName);
-};
+}
