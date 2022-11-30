@@ -1,4 +1,6 @@
-import { DEFAULT_PED_MODEL, models } from "../../config";
+import { DEFAULT_PED_MODEL } from "../../config";
+import { configFlags } from "../../config/flags";
+import { models } from "../../config/models";
 import { Args, Model } from "../../types";
 import { getArg, isEmpty, shouldRequestModel, debugDATA } from "../../utils";
 import { SetPedModel } from "../../utils/natives";
@@ -8,11 +10,16 @@ function handleEmit(ped: number) {
   debugDATA(`emitting event "SetPedModel"`);
 }
 
+function setPedFlags(ped: number) {
+  SetPedConfigFlag(ped, configFlags.PREVENT_AUTO_SHUFFLE_TO_DRIVERS_SEAT, true);
+}
+
 function spawn(model: Model, shouldEmit?: boolean) {
   SetPlayerModel(PlayerId(), model);
   SetModelAsNoLongerNeeded(model);
   const ped = PlayerPedId();
-  SetPedDefaultComponentVariation(ped);
+  setPedFlags(ped);
+  // SetPedDefaultComponentVariation(ped);
   debugDATA(`set ped model to "${model}"`);
   if (shouldEmit) handleEmit(ped);
   return ped;
